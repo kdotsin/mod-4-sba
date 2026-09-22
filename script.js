@@ -16,7 +16,7 @@ function handleAddBtnClick(event) {
     console.log(`category name: ${categoryName.value}`);
     console.log(`deadline: ${deadline.value}`);
     console.log(`status input: ${statusInput.value}`);
-    if (!taskName.value || !categoryName.value || !deadline.value || !statusInput.value || !filterOptions.value) {
+    if (!taskName.value || !categoryName.value || !deadline.value || !statusInput.value) {
         alert('Put in your inputs!');
     } else {
         let taskFormData = {
@@ -85,11 +85,11 @@ function displayTasks() {
         taskLi.dataset.status = tasks[i].status;
         filterOption.value = tasks[i].category;
         filterOption.innerText = tasks[i].category;
-        filterOptions.append(filterOption);
         taskLi.innerText = `${tasks[i].name} | deadline: ${tasks[i].deadline}`;
         taskLi.append(statusInputCopy)
         taskContainer.append(categoryEle);
         categoryEle.append(taskLi);
+        addFilterOption(filterOption);
     }
 }
 
@@ -107,9 +107,18 @@ function clearInputs() {
 
 function addTask(task) {
     for (let i = 0; i < tasks.length; i++) {
-        if (tasks.name == task[i].name) {
+        if (task.name == tasks[i].name) {
             return
         }
     }
     tasks.push(task);
+}
+
+function addFilterOption(option) {
+    for (let i = 0; i < filterOptions.options.length; i++) {
+        if (filterOptions.options[i].value == option.value) {
+            return
+        }
+    }
+    filterOptions.append(option)
 }
