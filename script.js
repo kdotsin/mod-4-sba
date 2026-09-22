@@ -5,17 +5,17 @@ let deadline = document.getElementById('deadline');
 let statusInput = document.getElementById('status-input');
 let taskContainer = document.getElementById('list-container');
 let filterOptions = document.getElementById('filter-options');
-let tasks = [];
+const savedData = localStorage.getItem('myTasks');
+let tasks = savedData ? JSON.parse(savedData) : [];
+const todayStr = getTodayString();
+displayTasks();
 
-addBtn.addEventListener('click', handleAddBtnClick)
-taskContainer.addEventListener('change', handleTaskContainerChange)
+addBtn.addEventListener('click', handleAddBtnClick);
+taskContainer.addEventListener('change', handleTaskContainerChange);
+filterOptions.addEventListener('change', handleFilterOptionChange);
 
 
 function handleAddBtnClick(event) {
-    console.log(`task name: ${taskName.value}`);
-    console.log(`category name: ${categoryName.value}`);
-    console.log(`deadline: ${deadline.value}`);
-    console.log(`status input: ${statusInput.value}`);
     if (!taskName.value || !categoryName.value || !deadline.value || !statusInput.value) {
         alert('Put in your inputs!');
     } else {
@@ -26,7 +26,6 @@ function handleAddBtnClick(event) {
             status: statusInput.value,
         };
         addTask(taskFormData)
-        console.log(tasks);
         displayTasks()
         clearInputs()
     }
@@ -34,19 +33,19 @@ function handleAddBtnClick(event) {
 
 function handleTaskContainerChange(event) {
     if (event.target.tagName == 'SELECT') {
-        console.log(event);
-        console.log(event.target)
         for (let i = 0; i < tasks.length; i++) {
             if (event.target.parentElement.dataset.name == tasks[i].name) {
                 tasks[i].status = event.target.value;
-                console.log("status: " + tasks[i].status);
             }
         }
     }
+    localStorage.setItem('myTasks', JSON.stringify(tasks));
 }
 
 function handleFilterOptionChange(event) {
-
+    if (event.target.options) {
+        displayFilteredList(event.target.value)
+    }
 }
 
 function displayFilteredList(filter) {
@@ -86,6 +85,9 @@ function displayTasks() {
         filterOption.value = tasks[i].category;
         filterOption.innerText = tasks[i].category;
         taskLi.innerText = `${tasks[i].name} | deadline: ${tasks[i].deadline}`;
+        if (tasks[i].deadline < todayStr) {
+            taskLi.innerText += " *Overdue";
+        }
         taskLi.append(statusInputCopy)
         taskContainer.append(categoryEle);
         categoryEle.append(taskLi);
@@ -95,8 +97,6 @@ function displayTasks() {
 
 function clearInputs() {
     let allInputs = document.querySelectorAll('input');
-    console.log(statusInput)
-    console.log(allInputs)
     for (let i = 0; i < allInputs.length; i++) {
         allInputs[i].value = ``;
     }
@@ -111,6 +111,7 @@ function addTask(task) {
             return
         }
     }
+    localStorage.setItem('myTasks', JSON.stringify(tasks));
     tasks.push(task);
 }
 
@@ -121,4 +122,13 @@ function addFilterOption(option) {
         }
     }
     filterOptions.append(option)
+}
+
+function getTodayString() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); 
+  const day = String(today.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
 }
